@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.zdf_de_lite" name="ZDF.de Lite" version="1.0.0" provider-name="AddonScriptorDE">
+<addon id="plugin.video.zdf_de_lite" name="ZDF.de" version="1.0.3" provider-name="AddonScriptorDE">
     <requires>
         <import addon="xbmc.python" version="2.0"/>
     </requires>
@@ -8,10 +8,10 @@
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="de">ZDF.de Lite</summary>
-        <summary lang="en">ZDF.de Lite</summary>
-        <description lang="de">ZDF, ZDFneo, ZDFkultur, ZDFinfo und 3sat:                        Einfach, schnell und nach Sendern sortiert</description>
-        <description lang="en">ZDF, ZDFneo, ZDFkultur, ZDFinfo and 3sat:                        Easy, fast and sorted by Channels</description>
+        <summary lang="de">ZDF.de</summary>
+        <summary lang="en">ZDF.de</summary>
+        <description lang="de">ZDF, ZDFneo, ZDFkultur, ZDFinfo und 3sat Mediathek</description>
+        <description lang="en">ZDF, ZDFneo, ZDFkultur, ZDFinfo and 3sat Media Library</description>
         <disclaimer lang="en">Some parts of this addon may not be legal in your country of residence - please check with your local laws before installing.</disclaimer>
     <platform>all</platform>
     </extension>
