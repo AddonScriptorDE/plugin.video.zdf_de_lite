@@ -3,6 +3,8 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,sys,xbmcaddon,base64
 
 pluginhandle = int(sys.argv[1])
+settings = xbmcaddon.Addon(id='plugin.video.zdf_de_lite')
+translation = settings.getLocalizedString
 
 def index():
         addDir("ZDF","zdf",'listChannel',"http://www.zdf.de/ZDFmediathek/contentblob/1209114/tImg/4009328")
@@ -10,12 +12,11 @@ def index():
         addDir("ZDFkultur","zdfkultur",'listChannel',"http://www.zdf.de/ZDFmediathek/contentblob/1317640/tImg/5960283")
         addDir("ZDFinfo","zdfinfo",'listChannel',"http://www.zdf.de/ZDFmediathek/contentblob/1209120/tImg/5880352")
         addDir("3sat","dreisat",'listChannel',"http://www.zdf.de/ZDFmediathek/contentblob/1209116/tImg/5784929")
-        addDir("Alle Sendungen: A-Z","",'listAZ',"")
-        addDir("Alle Sendungen: Thema","http://www.zdf.de/ZDFmediathek/hauptnavigation/themen",'listThemen',"")
-        addDir("Alle Sendungen: Suche","",'search',"")
-        addDir("Nachrichten","http://www.zdf.de/ZDFmediathek/hauptnavigation/nachrichten/ganze-sendungen",'listShows',"")
+        addDir(str(translation(30001))+": A-Z","",'listAZ',"")
+        addDir(str(translation(30001))+": Thema","http://www.zdf.de/ZDFmediathek/hauptnavigation/themen",'listThemen',"")
+        addDir(str(translation(30001))+": "+str(translation(30002)),"",'search',"")
+        addDir(translation(30003),"http://www.zdf.de/ZDFmediathek/hauptnavigation/nachrichten/ganze-sendungen",'listShows',"")
         xbmcplugin.endOfDirectory(pluginhandle)
-        if (xbmc.getSkinDir() == "skin.confluence" or xbmc.getSkinDir() == "skin.touched"): xbmc.executebuiltin('Container.SetViewMode(500)')
 
 def listChannel(url):
         if url=="zdf":
@@ -40,7 +41,6 @@ def listChannel(url):
           addDir("Das Aktuellste","http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1209116",'listVideos',"")
           addDir("Sendungen","http://www.zdf.de/ZDFmediathek/senderstartseite/sst2/1209116",'listShows',"")
         xbmcplugin.endOfDirectory(pluginhandle)
-        if (xbmc.getSkinDir() == "skin.confluence" or xbmc.getSkinDir() == "skin.touched"): xbmc.executebuiltin('Container.SetViewMode(50)')
 
 def listShows(url,bigThumb):
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
@@ -60,7 +60,6 @@ def listShows(url,bigThumb):
             if url.find("?bc=nrt;nrg&amp;gs=446")==-1 and url.find("?bc=nrt;nrg&amp;gs=1456548")==-1:
               addDir(title,"http://www.zdf.de"+url,'listVideos',"http://www.zdf.de"+thumb)
         xbmcplugin.endOfDirectory(pluginhandle)
-        if (xbmc.getSkinDir() == "skin.confluence" or xbmc.getSkinDir() == "skin.touched"): xbmc.executebuiltin('Container.SetViewMode(500)')
 
 def listVideos(url):
         if url.find("/nachrichten/ganze-sendungen")==-1:
@@ -99,7 +98,6 @@ def listVideos(url):
                 title=date+" - "+title+" ("+length+")"
                 addLink(title,url,'playVideo',thumb)
         xbmcplugin.endOfDirectory(pluginhandle)
-        if (xbmc.getSkinDir() == "skin.confluence" or xbmc.getSkinDir() == "skin.touched"): xbmc.executebuiltin('Container.SetViewMode(500)')
 
 def playVideo(url):
         content = getUrl("http://www.zdf.de/ZDFmediathek/xmlservice/web/beitragsDetails?id="+url+"&ak=web")
@@ -133,7 +131,6 @@ def listAZ():
         addDir("WXYZ","http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz7",'listShows',"")
         addDir("0-9","http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz8",'listShows',"")
         xbmcplugin.endOfDirectory(pluginhandle)
-        if (xbmc.getSkinDir() == "skin.confluence" or xbmc.getSkinDir() == "skin.touched"): xbmc.executebuiltin('Container.SetViewMode(50)')
 
 def cleanTitle(title):
         title=title.replace("&lt;","<").replace("&gt;",">").replace("&amp;","&").replace("&#039;","\\").replace("&quot;","\"").replace("&szlig;","ß").replace("&ndash;","-")
