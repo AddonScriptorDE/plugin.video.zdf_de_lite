@@ -88,7 +88,7 @@ def listVideos(url):
         spl=content.split('<div class="image">')
         for i in range(1,len(spl),1):
             entry=spl[i]
-            if entry.find("BILDER</a></p>")==-1 and entry.find(">INTERAKTIV</a></p>")==-1:
+            if entry.find("BILDER</a></p>")==-1 and entry.find(">INTERAKTIV</a></p>")==-1 and entry.find("BEITR&Auml;GE")==-1:
               match1=re.compile('/video/(.+?)/', re.DOTALL).findall(entry)
               match2=re.compile('/live/(.+?)/', re.DOTALL).findall(entry)
               if len(match1)>=1:
@@ -113,17 +113,10 @@ def listVideos(url):
               title=match[0][1]
               title=cleanTitle(title)
               date=cleanTitle(date)
-              if length.find(":")>=0:
-                length=length+" min"
-              #if date.find(", ")>=0:
-              #  date=date[date.find(", ")+2:]
               if date.find(".20")>=0:
                 date=date[:date.find(".20")]
-              if length!="":
-                title=date+" - "+title+" ("+length+")"
-              else:
-                title=date+" - "+title
-              addLink(title,url,'playVideo',thumb)
+              title=date+" - "+title
+              addLink(title,url,'playVideo',thumb,length)
         xbmcplugin.endOfDirectory(pluginhandle)
         if forceViewMode==True:
           xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
@@ -199,11 +192,11 @@ def parameters_string_to_dict(parameters):
                     paramDict[paramSplits[0]] = paramSplits[1]
         return paramDict
 
-def addLink(name,url,mode,iconimage):
+def addLink(name,url,mode,iconimage,duration=""):
         u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)
         ok=True
         liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name } )
+        liz.setInfo( type="Video", infoLabels={ "Title": name, "Duration": duration } )
         liz.setProperty('IsPlayable', 'true')
         ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
         return ok
