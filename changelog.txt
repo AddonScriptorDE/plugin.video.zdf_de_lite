@@ -5,3 +5,4 @@
 1.0.4 - Various fixes and optical optimizations
 1.0.5 - Added livestreams
 1.0.6 - Fixed search & some optical optimizations
+1.0.7 - Various small fixes

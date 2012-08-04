@@ -1,18 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import urllib,urllib2,re,xbmcplugin,xbmcgui,sys,xbmcaddon,base64
+import urllib,urllib2,re,xbmcplugin,xbmcgui,sys,xbmcaddon,base64,socket
 
+socket.setdefaulttimeout(30)
 pluginhandle = int(sys.argv[1])
-xbox = xbmc.getCondVisibility("System.Platform.xbox")
-settings = xbmcaddon.Addon(id='plugin.video.zdf_de_lite')
-translation = settings.getLocalizedString
+addon = xbmcaddon.Addon(id='plugin.video.zdf_de_lite')
+translation = addon.getLocalizedString
 
-forceViewMode=settings.getSetting("forceViewMode")
+forceViewMode=addon.getSetting("forceViewMode")
 if forceViewMode=="true":
   forceViewMode=True
 else:
   forceViewMode=False
-viewMode=str(settings.getSetting("viewMode"))
+viewMode=str(addon.getSetting("viewMode"))
 
 def index():
         addDir("ZDF","zdf",'listChannel',"http://www.zdf.de/ZDFmediathek/contentblob/1209114/tImg/4009328")
@@ -56,7 +56,6 @@ def listChannel(url):
           xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
 
 def listShows(url,bigThumb):
-        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         content = getUrl(url)
         spl=content.split('<div class="image">')
         for i in range(1,len(spl),1):
@@ -77,6 +76,7 @@ def listShows(url,bigThumb):
           xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
 
 def listVideos(url):
+        urlMain=url
         if url.find("/nachrichten/ganze-sendungen")==-1:
           if url.find("?bc=")>=0:
             url=url[:url.find("?bc=")]
@@ -116,7 +116,10 @@ def listVideos(url):
               if date.find(".20")>=0:
                 date=date[:date.find(".20")]
               title=date+" - "+title
-              addLink(title,url,'playVideo',thumb,length)
+              if urlMain.find("/live/day0")>0 and entry.find(">LIVE</a></p>")>=0:
+                addLink(title,url,'playVideo',thumb,length)
+              elif urlMain.find("/live/day0")==-1 and entry.find(">LIVE</a></p>")==-1:
+                addLink(title,url,'playVideo',thumb,length)
         xbmcplugin.endOfDirectory(pluginhandle)
         if forceViewMode==True:
           xbmc.executebuiltin('Container.SetViewMode('+viewMode+')')
@@ -127,20 +130,27 @@ def playVideo(url):
         match2=re.compile('<formitaet basetype="h264_aac_mp4_rtmp_zdfmeta_http" isDownload="false">\n                <quality>high</quality>\n                <url>(.+?)</url>', re.DOTALL).findall(content)
         match3=re.compile('<formitaet basetype="h264_aac_na_rtsp_mov_http" isDownload="false">\n                <quality>veryhigh</quality>\n                <url>(.+?)</url>', re.DOTALL).findall(content)
         url=""
-        if len(match1)>=1:
-          url=match1[0]
-          content = getUrl(url)
-          match=re.compile('<default-stream-url>(.+?)</default-stream-url>', re.DOTALL).findall(content)
-        elif len(match3)>=1:
-          url=match3[0]
-          content = getUrl(url)
-          match=re.compile('RTSPtext\n(.+?)\n', re.DOTALL).findall(content)
-        elif len(match2)>=1:
-          url=match2[1]
-          content = getUrl(url)
-          match=re.compile('<default-stream-url>(.+?)</default-stream-url>', re.DOTALL).findall(content)
-        listitem = xbmcgui.ListItem(path=match[0])
-        return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)
+        finalUrl=""
+        if content.find("<type>livevideo</type>")>=0:
+          if len(match3)>=1:
+            url=match3[0]
+            content = getUrl(url)
+            match=re.compile('RTSPtext\n(.+?)\n', re.DOTALL).findall(content)
+            finalUrl=match[0]
+        elif content.find("<type>video</type>")>=0:
+          if len(match1)>=1:
+            url=match1[0]
+            content = getUrl(url)
+            match=re.compile('<default-stream-url>(.+?)</default-stream-url>', re.DOTALL).findall(content)
+            finalUrl=match[0]
+          elif len(match2)>=1:
+            url=match2[1]
+            content = getUrl(url)
+            match=re.compile('<default-stream-url>(.+?)</default-stream-url>', re.DOTALL).findall(content)
+            finalUrl=match[0]
+        if finalUrl!="":
+          listitem = xbmcgui.ListItem(path=finalUrl)
+          return xbmcplugin.setResolvedUrl(pluginhandle, True, listitem)
 
 def search():
         keyboard = xbmc.Keyboard('', 'Video Suche')
@@ -165,18 +175,14 @@ def listAZ():
 
 def cleanTitle(title):
         title=title.replace("&lt;","<").replace("&gt;",">").replace("&amp;","&").replace("&#039;","\\").replace("&quot;","\"").replace("&szlig;","ß").replace("&ndash;","-")
-        title=title.replace("&Auml;","Ä").replace("&Uuml;","Ü").replace("&Ouml;","Ö").replace("&auml;","ä").replace("&uuml;","ü").replace("&ouml;","ö")
+        title=title.replace("&Auml;","Ä").replace("&Uuml;","Ü").replace("&Ouml;","Ö").replace("&auml;","ä").replace("&uuml;","ü").replace("&ouml;","ö").replace("&eacute;","é").replace("&egrave;","è")
         title=title.strip()
         return title
 
 def getUrl(url):
         req = urllib2.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0')
-        if xbox==True:
-          socket.setdefaulttimeout(30)
-          response = urllib2.urlopen(req)
-        else:
-          response = urllib2.urlopen(req,timeout=30)
+        response = urllib2.urlopen(req)
         link=response.read()
         response.close()
         return link
