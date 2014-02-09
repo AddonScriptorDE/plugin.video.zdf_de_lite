@@ -36,3 +36,7 @@
 - Added links: Filme/Serien/Dokus
 2.1.4
 - Changed default view
+2.1.6
+- Fixed livestreams
+2.1.7
+- Fixed livestreams

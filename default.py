@@ -208,7 +208,7 @@ def listVideos(url):
                 if ".20" in date:
                     date = date[:date.find(".20")]
             title = date.split(",")[1].strip()+" - "+date.split(",")[0].strip()+": "+title
-            if "/live/day0" in urlMain and ">LIVE</a></p>" in entry and "Live TV" in entry:
+            if "/live/day0" in urlMain and ">LIVE</a></p>" in entry:
                 addLink(title.replace("live-bis 00:00, ", ""), url, 'playVideo', thumb, length)
             elif urlMain.find("/live/day0") == -1 and entry.find(">LIVE</a></p>") == -1:
                 minutes = 999
